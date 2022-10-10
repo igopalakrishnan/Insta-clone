@@ -16,7 +16,7 @@ export const USERS = [
         image: 'https://media.wired.com/photos/5909607b76f462691f012d44/2:1/w_300,h_150,c_limit/sand-snakes.jpg'
     },
     {
-        user: 'Danearys',
+        user: 'Daenerys',
         image: 'https://media1.popsugar-assets.com/files/thumbor/FGOp_u0GrL4XewAbTfvt5QeGIw8/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2017/03/09/928/n/1922283/dbd36e98de21710d_edit_img_image_14344989_1489093873.jpg'
     },
     {

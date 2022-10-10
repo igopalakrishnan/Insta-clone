@@ -19,20 +19,24 @@ const postFooterIcons = [
     },
     {
         name: 'Save',
-        imageUrl: 'https://img.icons8.com/fluency-systems-regular/60/ffffff/save.png',
+        imageUrl: 'https://img.icons8.com/sf-ultralight/60/ffffff/bookmark-ribbon.png',
     },
 ]
 
 const Post = ({ post }) => {
     return (
-        <View style={{marginBottom: 30 }}>
-            <Divider style={{ backgroundColor: "gray"}} width={1} orientation="vertical" />
+        <View style={{ marginBottom: 30 }}>
+            <Divider style={{ backgroundColor: "gray" }} width={1} orientation="vertical" />
             <PostHeader post={post} />
             <PostImage post={post} />
-            <View style={{ marginHorizontal: 15, marginTop: 10}}>
-            <PostFooter />
+            <View style={{ marginHorizontal: 15, marginTop: 10 }}>
+                <PostFooter />
+                <Likes post={post} />
+                <Caption post={post} />
+                <CommentSection post={post} />
+                <Comments post={post} />
             </View>
-            
+
         </View>
     )
 }
@@ -59,30 +63,30 @@ const PostImage = ({ post }) => (
         height: 450,
     }}>
         <Image source={{
-        uri: post.imageUrl
-    }}
-        style={{
-            height: '100%',
-            resizeMode: 'cover'
+            uri: post.imageUrl
         }}
-    />
+            style={{
+                height: '100%',
+                resizeMode: 'cover'
+            }}
+        />
     </View>
-    
+
 )
 
 const PostFooter = () => (
-    <View style={{ flexDirection: 'row'}}>
+    <View style={{ flexDirection: 'row' }}>
         <View style={styles.leftFooterIconsContainer}>
-        <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[0].imageUrl} />
-        <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[1].imageUrl} />
-        <Icon imgStyle={[styles.footerIcon, styles.shareIcon]} imgUrl={postFooterIcons[2].imageUrl} />
+            <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[0].imageUrl} />
+            <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[1].imageUrl} />
+            <Icon imgStyle={[styles.footerIcon, styles.shareIcon]} imgUrl={postFooterIcons[2].imageUrl} />
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end'}}>
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
             <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[3].imageUrl} />
         </View>
     </View>
-    
+
 )
 
 const Icon = ({ imgStyle, imgUrl }) => (
@@ -92,6 +96,59 @@ const Icon = ({ imgStyle, imgUrl }) => (
         }}
         />
     </TouchableOpacity>
+)
+
+const Likes = ({ post }) => (
+    <View style={{
+        flexDirection: 'row',
+        marginTop: 4
+    }}>
+        <Text
+            style={{
+                color: 'white',
+                fontWeight: '600'
+            }}>
+            {post.likes.toLocaleString('en')} likes
+        </Text>
+    </View>
+)
+
+const Caption = ({ post }) => (
+    <View style={{ marginTop: 5 }}>
+        <Text style={{ color: 'white' }}>
+            <Text style={{
+                fontWeight: '800'
+            }}>
+                {post.user}
+            </Text>
+            <Text> {post.caption}</Text>
+        </Text>
+    </View>
+
+)
+
+const CommentSection = ({post}) => (
+    <View style={{ marginTop: 5}}>
+        {!!post.comments.length && (
+    <Text style={{ color: 'gray'}}>
+        View{post.comments.length > 1 ? ' all' : ''} {post.comments.length}{' '}
+        {post.comments.length > 1 ? 'comments' : 'comment'}
+    </Text>
+        )}
+    </View>
+)
+
+const Comments = ({post}) => (
+    <>
+    {post.comments.map((comment, index) => (
+        <View key={index} style={{ flexDirection: 'row', marginTop: 5}}>
+            <Text style={{ color: 'white' }}>
+                <Text style={{ fontWeight: '600'}}>{comment.user}</Text>{' '}
+                {comment.comment}
+            </Text>
+        </View>
+    ))}
+    </>
 )
 
 export default Post
@@ -111,7 +168,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#ff8501',
     },
-    footerIcon:{
+    footerIcon: {
         width: 33,
         height: 33,
     },
@@ -121,7 +178,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     shareIcon: {
-        transform: [{ rotate: '320deg'}],
+        transform: [{ rotate: '320deg' }],
         marginTop: -3,
     }
 })
