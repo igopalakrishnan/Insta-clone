@@ -1,6 +1,7 @@
 import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Divider } from 'react-native-elements';
+import { firebase, db } from '../../firebase';
 
 
 const postFooterIcons = [
@@ -24,13 +25,38 @@ const postFooterIcons = [
 ]
 
 const Post = ({ post }) => {
+    const handleLike = post => {
+        const currentLikeStatus = !post.likes_by_users.includes(
+            firebase.auth().currentUser.email
+        )
+
+        db.collection('users')
+            .doc(post.owner_email)
+            .collection('posts')
+            .doc(post.id)
+            .update({
+                likes_by_users: currentLikeStatus
+                    ? firebase.firestore.FieldValue.arrayUnion(
+                        firebase.auth().currentUser.email
+                    )
+                    : firebase.firestore.FieldValue.arrayRemove(
+                        firebase.auth().currentUser.email
+                    ),
+            })
+            .then(() => {
+                console.log('Document successfully updates!')
+            })
+            .catch(error => {
+                console.log('Error updating documents:', error)
+            })
+    }
     return (
         <View style={{ marginBottom: 30 }}>
             <Divider style={{ backgroundColor: "gray" }} width={1} orientation="vertical" />
             <PostHeader post={post} />
             <PostImage post={post} />
             <View style={{ marginHorizontal: 15, marginTop: 10 }}>
-                <PostFooter />
+                <PostFooter post={post} handleLike={handleLike} />
                 <Likes post={post} />
                 <Caption post={post} />
                 <CommentSection post={post} />
@@ -74,10 +100,18 @@ const PostImage = ({ post }) => (
 
 )
 
-const PostFooter = () => (
+const PostFooter = ({ handleLike, post }) => (
     <View style={{ flexDirection: 'row' }}>
         <View style={styles.leftFooterIconsContainer}>
-            <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[0].imageUrl} />
+            <TouchableOpacity onPress={() => handleLike(post)}>
+                <Image
+                    style={styles.footerIcon}
+                    source={{ uri: post.likes_by_users.includes(firebase.auth().currentUser.email)
+                     ? postFooterIcons[0].likedImageUrl
+                     : postFooterIcons[0].imageUrl,
+                    }}
+                />
+            </TouchableOpacity>
             <Icon imgStyle={styles.footerIcon} imgUrl={postFooterIcons[1].imageUrl} />
             <Icon imgStyle={[styles.footerIcon, styles.shareIcon]} imgUrl={postFooterIcons[2].imageUrl} />
         </View>
@@ -108,7 +142,7 @@ const Likes = ({ post }) => (
                 color: 'white',
                 fontWeight: '600'
             }}>
-            {post.likes.toLocaleString('en')} likes
+            {post.likes_by_users.length.toLocaleString('en')} likes
         </Text>
     </View>
 )
@@ -127,27 +161,27 @@ const Caption = ({ post }) => (
 
 )
 
-const CommentSection = ({post}) => (
-    <View style={{ marginTop: 5}}>
+const CommentSection = ({ post }) => (
+    <View style={{ marginTop: 5 }}>
         {!!post.comments.length && (
-    <Text style={{ color: 'gray'}}>
-        View{post.comments.length > 1 ? ' all' : ''} {post.comments.length}{' '}
-        {post.comments.length > 1 ? 'comments' : 'comment'}
-    </Text>
+            <Text style={{ color: 'gray' }}>
+                View{post.comments.length > 1 ? ' all' : ''} {post.comments.length}{' '}
+                {post.comments.length > 1 ? 'comments' : 'comment'}
+            </Text>
         )}
     </View>
 )
 
-const Comments = ({post}) => (
+const Comments = ({ post }) => (
     <>
-    {post.comments.map((comment, index) => (
-        <View key={index} style={{ flexDirection: 'row', marginTop: 5}}>
-            <Text style={{ color: 'white' }}>
-                <Text style={{ fontWeight: '600'}}>{comment.user}</Text>{' '}
-                {comment.comment}
-            </Text>
-        </View>
-    ))}
+        {post.comments.map((comment, index) => (
+            <View key={index} style={{ flexDirection: 'row', marginTop: 5 }}>
+                <Text style={{ color: 'white' }}>
+                    <Text style={{ fontWeight: '600' }}>{comment.user}</Text>{' '}
+                    {comment.comment}
+                </Text>
+            </View>
+        ))}
     </>
 )
 
